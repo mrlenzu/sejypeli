@@ -13,45 +13,45 @@ public class BadgersJourney : PhysicsGame
     Image tahdenkuva = LoadImage("tähti");
     Image vihollisenkuva = LoadImage("mallerssi");
     PlatformCharacter pelaaja;
-    PhysicsObject olio;
+    double liikutaVasemmalle = -1000;
+    double liikutaOikealle = 1000;
     public override void Begin()
     {
-        
-
+        MediaPlayer.Play("musa");
+        //Gravity = new Vector(0.0, -800.0);
         LuoKentta();
-        Camera.Follow(olio);
+        LuoNappaimet();
+        Camera.Follow(pelaaja);
+        Camera.Zoom(0.7);
         PhoneBackButton.Listen(ConfirmExit, "Lopeta peli");
         Keyboard.Listen(Key.Escape, ButtonState.Pressed, ConfirmExit, "Lopeta peli");
     }
     void LuoKentta()
     {
-        
-        
-        
+
+
+
         ColorTileMap ruudut = ColorTileMap.FromLevelAsset("kentta");
 
-       
-        ruudut.SetTileMethod(Color.Green, LuoPelaaja);
+
+        ruudut.SetTileMethod(Color.FromHexCode("42FF3F"), LuoPelaaja);
         ruudut.SetTileMethod(Color.Black, LuoTaso);
         ruudut.SetTileMethod(Color.Blue, LuoTahti);
         ruudut.SetTileMethod(Color.Red, LuoVihollinen);
-        
+
         ruudut.Execute(20, 20);
     }
 
     void LuoPelaaja(Vector paikka, double leveys, double korkeus)
     {
-         pelaaja = new PlatformCharacter(10, 10);
-        pelaaja.Position = paikka;
-        AddCollisionHandler(pelaaja, "tahti", TormaaTahteen);
-        Add(pelaaja);
+        
 
-        olio = new PhysicsObject(32, 32);
-        olio.Shape = Shape.Circle;
-        olio.Mass = 10.0;
-        Add(olio);
-        olio.Image = olionKuva;
-        olio.Position = paikka;
+        pelaaja = new PlatformCharacter(32, 32);
+        pelaaja.Shape = Shape.Circle;
+        pelaaja.Mass = 10.0;
+        Add(pelaaja);
+        pelaaja.Image = olionKuva;
+        pelaaja.Position = paikka;
     }
 
     void LuoTaso(Vector paikka, double leveys, double korkeus)
@@ -62,7 +62,7 @@ public class BadgersJourney : PhysicsGame
         //taso.Image = tasonKuva;
         //taso.CollisionIgnoreGroup = 1;
         Add(taso);
-        
+
     }
 
     void LuoTahti(Vector paikka, double leveys, double korkeus)
@@ -91,8 +91,25 @@ public class BadgersJourney : PhysicsGame
 
 
     }
-}
+    void LuoNappaimet()
+    {
+        Keyboard.Listen(Key.Left, ButtonState.Down, LiikutaPelaajaa, "liikuta Pelaajaa vasemmalle" , liikutaVasemmalle);
+        Keyboard.Listen(Key.Right, ButtonState.Down, LiikutaPelaajaa,"liikuta pelaajaa oikealle", liikutaOikealle);
+        Keyboard.Listen(Key.Up, ButtonState.Down, Hyppaa, "hyppaa");
 
+    }
+    void LiikutaPelaajaa(Double nopeus)
+    {
+        pelaaja.Walk(nopeus);
+    }
+    void Hyppaa()
+    {
+        pelaaja.Jump(500);
+    }
+
+
+
+}
 
 
 
