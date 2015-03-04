@@ -17,8 +17,8 @@ public class BadgersJourney : PhysicsGame
     double liikutaOikealle = 1000;
     public override void Begin()
     {
-        MediaPlayer.Play("musa");
-        //Gravity = new Vector(0.0, -800.0);
+        MediaPlayer.Play("biisi.mp3");
+        Gravity = new Vector(0.0, -800.0);
         LuoKentta();
         LuoNappaimet();
         Camera.Follow(pelaaja);
@@ -81,7 +81,7 @@ public class BadgersJourney : PhysicsGame
     void LuoVihollinen(Vector paikka, double leveys, double korkeus)
     {
         PhysicsObject vihollinen = new PhysicsObject(50, 50);
-        vihollinen.IgnoresCollisionResponse = true;
+        //vihollinen.IgnoresCollisionResponse = true;
         vihollinen.Position = paikka;
         vihollinen.Image = vihollisenkuva;
         vihollinen.Tag = "mallerssi";
@@ -96,7 +96,7 @@ public class BadgersJourney : PhysicsGame
         Keyboard.Listen(Key.Left, ButtonState.Down, LiikutaPelaajaa, "liikuta Pelaajaa vasemmalle" , liikutaVasemmalle);
         Keyboard.Listen(Key.Right, ButtonState.Down, LiikutaPelaajaa,"liikuta pelaajaa oikealle", liikutaOikealle);
         Keyboard.Listen(Key.Up, ButtonState.Down, Hyppaa, "hyppaa");
-
+        Keyboard.Listen(Key.Space, ButtonState.Down, Isku, "iske");
     }
     void LiikutaPelaajaa(Double nopeus)
     {
@@ -106,6 +106,29 @@ public class BadgersJourney : PhysicsGame
     {
         pelaaja.Jump(500);
     }
+    void Isku()
+    {
+        SoundEffect iskuaani = LoadSoundEffect("burb");
+        Sound pelaaja1Iskuaani = iskuaani.CreateSound();
+        pelaaja1Iskuaani.Pitch = 0.9;
+        pelaaja1Iskuaani.Play();
+        PhysicsObject isku = new PhysicsObject(100, 60);
+        isku.Position = pelaaja.Position;
+        //isku.IgnoresPhysicsLogics = true;
+        Add(isku);
+        isku.LifetimeLeft = TimeSpan.FromSeconds(1.0);
+        AddCollisionHandler(isku, osuma);
+        //PhysicsStructure rakenne = new PhysicsStructure(pelaaja, isku);
+        //Add(rakenne);
+    }
+    void osuma(PhysicsObject tormaaja, PhysicsObject kohde)
+    {
+        if (kohde.Tag.ToString() == "mallerssi")
+        {
+            kohde.Destroy();
+        }
+    }
+
 
 
 
