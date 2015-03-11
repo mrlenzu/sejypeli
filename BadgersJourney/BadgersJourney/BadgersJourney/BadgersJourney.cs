@@ -15,14 +15,16 @@ public class BadgersJourney : PhysicsGame
     PlatformCharacter pelaaja;
     double liikutaVasemmalle = -1000;
     double liikutaOikealle = 1000;
+    List<Label> valikonKohdat;
     public override void Begin()
     {
         MediaPlayer.Play("biisi.mp3");
         Gravity = new Vector(0.0, -800.0);
         LuoKentta();
         LuoNappaimet();
+        LuoElamalaskuri();
         Camera.Follow(pelaaja);
-        Camera.Zoom(0.7);
+        Camera.Zoom(0.8);
         PhoneBackButton.Listen(ConfirmExit, "Lopeta peli");
         Keyboard.Listen(Key.Escape, ButtonState.Pressed, ConfirmExit, "Lopeta peli");
     }
@@ -52,6 +54,8 @@ public class BadgersJourney : PhysicsGame
         Add(pelaaja);
         pelaaja.Image = olionKuva;
         pelaaja.Position = paikka;
+        pelaaja.CollisionIgnoreGroup = 1;
+        AddCollisionHandler(pelaaja, PelaajaTormasi);
     }
 
     void LuoTaso(Vector paikka, double leveys, double korkeus)
@@ -112,7 +116,7 @@ public class BadgersJourney : PhysicsGame
         Sound pelaaja1Iskuaani = iskuaani.CreateSound();
         pelaaja1Iskuaani.Pitch = 0.9;
         pelaaja1Iskuaani.Play();
-        PhysicsObject isku = new PhysicsObject(100, 60);
+        PhysicsObject isku = new PhysicsObject(200, 60);
         isku.Position = pelaaja.Position;
         //isku.IgnoresPhysicsLogics = true;
         Add(isku);
@@ -120,6 +124,9 @@ public class BadgersJourney : PhysicsGame
         AddCollisionHandler(isku, osuma);
         //PhysicsStructure rakenne = new PhysicsStructure(pelaaja, isku);
         //Add(rakenne);
+        isku.IgnoresCollisionWith(pelaaja);
+        isku.CollisionIgnoreGroup = 1;
+        isku.IsVisible = false;
     }
     void osuma(PhysicsObject tormaaja, PhysicsObject kohde)
     {
@@ -128,10 +135,62 @@ public class BadgersJourney : PhysicsGame
             kohde.Destroy();
         }
     }
+    IntMeter ElamaLaskuri;
+
+    void LuoElamalaskuri()
+    {
+        ElamaLaskuri = new IntMeter(3);
+
+        Label ElamaNaytto = new Label();
+        ElamaNaytto.X = Screen.Left + 100;
+        ElamaNaytto.Y = Screen.Top - 100;
+        ElamaNaytto.TextColor = Color.Black;
+        ElamaNaytto.Color = Color.White;
+
+        ElamaNaytto.BindTo(ElamaLaskuri);
+        Add(ElamaNaytto);
+        ElamaNaytto.Title = "ëlämät";
+    }
+    void PelaajaTormasi(PhysicsObject tormaaja, PhysicsObject kohde)
+    {
+        if (kohde.Tag.ToString() == "mallerssi")
+        {
+            ElamaLaskuri.Value--;
+        }
+
+        if (ElamaLaskuri.Value == 0)
+        {
+            ClearAll();
+            Valikko();
+        }
+    }
+    void Valikko()
+    {
+        ClearAll();
+
+        valikonKohdat = new List<Label>();
+
+        Label kohta1 = new Label("Aloita uusi peli");
+        kohta1.Position = new Vector(0, 40);
+        valikonKohdat.Add(kohta1);
+
+        Label kohta2 = new Label("Parhaat pisteet");
+        kohta2.Position = new Vector(0, 0);
+        valikonKohdat.Add(kohta2);
+
+        Label kohta3 = new Label("Lopeta peli");
+        kohta3.Position = new Vector(0, -40);
+        valikonKohdat.Add(kohta3);
 
 
-
-
+        foreach (Label valikonKohta in valikonKohdat)
+        {
+            Add(valikonKohta);
+        }
+        Mouse.ListenOn(kohta1, MouseButton.Left, ButtonState.Pressed,AloitaPeli , null);
+        Mouse.ListenOn(kohta2, MouseButton.Left, ButtonState.Pressed, ParhaatPisteet, null);
+        Mouse.ListenOn(kohta3, MouseButton.Left, ButtonState.Pressed, Exit, null);
+    }
 }
 
 
