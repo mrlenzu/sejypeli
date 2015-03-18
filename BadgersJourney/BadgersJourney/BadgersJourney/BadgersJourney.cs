@@ -10,23 +10,25 @@ public class BadgersJourney : PhysicsGame
 {
     Image olionKuva = LoadImage("badger1");
     //Image tasonKuva = LoadImage("kentta");
-    Image tahdenkuva = LoadImage("tähti");
+    Image keksinkuva = LoadImage("keksi");
     Image vihollisenkuva = LoadImage("mallerssi");
+    Image tekstinkuva = LoadImage("teksti");
     PlatformCharacter pelaaja;
     double liikutaVasemmalle = -1000;
     double liikutaOikealle = 1000;
     List<Label> valikonKohdat;
     public override void Begin()
     {
-        MediaPlayer.Play("biisi.mp3");
-        Gravity = new Vector(0.0, -800.0);
+        MediaPlayer.Play("gm");
+        Gravity = new Vector(0.0, -900.0);
         LuoKentta();
         LuoNappaimet();
         LuoElamalaskuri();
         Camera.Follow(pelaaja);
         Camera.Zoom(0.8);
+        Level.Background.Color = Color.LightYellow;
         PhoneBackButton.Listen(ConfirmExit, "Lopeta peli");
-        Keyboard.Listen(Key.Escape, ButtonState.Pressed, ConfirmExit, "Lopeta peli");
+        
     }
     void LuoKentta()
     {
@@ -38,7 +40,7 @@ public class BadgersJourney : PhysicsGame
 
         ruudut.SetTileMethod(Color.FromHexCode("42FF3F"), LuoPelaaja);
         ruudut.SetTileMethod(Color.Black, LuoTaso);
-        ruudut.SetTileMethod(Color.Blue, LuoTahti);
+        ruudut.SetTileMethod(Color.FromHexCode("0026FF"), Luokeksi);
         ruudut.SetTileMethod(Color.Red, LuoVihollinen);
 
         ruudut.Execute(20, 20);
@@ -52,6 +54,7 @@ public class BadgersJourney : PhysicsGame
         pelaaja.Shape = Shape.Circle;
         pelaaja.Mass = 10.0;
         Add(pelaaja);
+        pelaaja.Tag = "badger1";
         pelaaja.Image = olionKuva;
         pelaaja.Position = paikka;
         pelaaja.CollisionIgnoreGroup = 1;
@@ -69,14 +72,15 @@ public class BadgersJourney : PhysicsGame
 
     }
 
-    void LuoTahti(Vector paikka, double leveys, double korkeus)
+    void Luokeksi(Vector paikka, double leveys, double korkeus)
     {
-        PhysicsObject tahti = new PhysicsObject(40, 40);
-        tahti.IgnoresCollisionResponse = true;
-        tahti.Position = paikka;
-        tahti.Image = tahdenkuva;
-        tahti.Tag = "tahti";
-        Add(tahti, 1);
+        PhysicsObject keksi = new PhysicsObject(40, 40);
+        //keksi.IgnoresCollisionResponse = true;
+        keksi.Position = paikka;
+        keksi.Image = keksinkuva;
+        keksi.Tag = "keksi";
+        AddCollisionHandler(keksi, Pelaajavoittaa);
+        Add(keksi);
     }
     void TormaaTahteen(PhysicsObject tormaa, PhysicsObject tahti)
     {
@@ -101,6 +105,7 @@ public class BadgersJourney : PhysicsGame
         Keyboard.Listen(Key.Right, ButtonState.Down, LiikutaPelaajaa,"liikuta pelaajaa oikealle", liikutaOikealle);
         Keyboard.Listen(Key.Up, ButtonState.Down, Hyppaa, "hyppaa");
         Keyboard.Listen(Key.Space, ButtonState.Down, Isku, "iske");
+        Keyboard.Listen(Key.Escape, ButtonState.Pressed, ConfirmExit, "Lopeta peli");
     }
     void LiikutaPelaajaa(Double nopeus)
     {
@@ -174,12 +179,8 @@ public class BadgersJourney : PhysicsGame
         kohta1.Position = new Vector(0, 40);
         valikonKohdat.Add(kohta1);
 
-        Label kohta2 = new Label("Parhaat pisteet");
-        kohta2.Position = new Vector(0, 0);
-        valikonKohdat.Add(kohta2);
-
         Label kohta3 = new Label("Lopeta peli");
-        kohta3.Position = new Vector(0, -40);
+        kohta3.Position = new Vector(0, 0);
         valikonKohdat.Add(kohta3);
 
 
@@ -188,8 +189,26 @@ public class BadgersJourney : PhysicsGame
             Add(valikonKohta);
         }
         Mouse.ListenOn(kohta1, MouseButton.Left, ButtonState.Pressed,AloitaPeli , null);
-        Mouse.ListenOn(kohta2, MouseButton.Left, ButtonState.Pressed, ParhaatPisteet, null);
         Mouse.ListenOn(kohta3, MouseButton.Left, ButtonState.Pressed, Exit, null);
+        Mouse.IsCursorVisible = true;
+    }
+    void AloitaPeli()
+    {
+        ClearAll();
+        Begin();
+    }
+    void Pelaajavoittaa(PhysicsObject keksi, PhysicsObject kohde)
+    {
+
+
+        if (kohde.Tag.ToString() == "badger1")
+        {
+            ClearAll();
+            LuoNappaimet();
+            PhysicsObject teksti = PhysicsObject.CreateStaticObject(Screen.Width,Screen.Height);
+            teksti.Image = tekstinkuva;
+            Add(teksti);
+        }
     }
 }
 
